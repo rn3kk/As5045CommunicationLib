@@ -8,11 +8,15 @@ Encoder::Encoder()
 
 }
 
-Encoder::Encoder(const QString &name, const QByteArray &address, int angleShift, TcpUartModule *tcpModule):
+Encoder::Encoder(const QString &name, const QByteArray &address, int angleShift):
   m_name(name),
   m_address(address),
-  m_angleShift(angleShift),
-  m_tcpUartModule(tcpModule)
+  m_angleShift(angleShift)
+{
+
+}
+
+quint8 Encoder::getAngle()
 {
 
 }
@@ -22,14 +26,12 @@ QString Encoder::name() const
   return m_name;
 }
 
-void Encoder::sendAzInfoRequest() const
+QByteArray Encoder::getRequest() const
 {
-  if(m_tcpUartModule == 0x0) return;  
-
   unsigned char address = m_address.at(0);
   unsigned char length = 0x81;
   unsigned char data1 = 0x02;
-  unsigned char crc =ProtocolUtil::createCrc(length, address, data1, 0x0, 0x0);
+  unsigned char crc = ProtocolUtil::createCrc(length, address, data1, 0x0, 0x0);
 
   QByteArray arr;
   arr.append(START_BYTE);
@@ -38,7 +40,8 @@ void Encoder::sendAzInfoRequest() const
   arr.append(data1);
   arr.append(crc);
   arr.append(STOP_BYTE);
-  m_tcpUartModule->writeData(arr);
+
+  return arr;
 }
 
 unsigned int Encoder::getAddress() const

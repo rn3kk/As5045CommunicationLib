@@ -1,8 +1,6 @@
-#include <QApplication>
+#include <QCoreApplication>
 #include <QMutexLocker>
 #include "ProtocolUtil.h"
-#include "sleepthread.h"
-#include "Log/Log.h"
 #include "MessageBus.h"
 #include "DataExchange.h"
 
@@ -133,7 +131,7 @@ bool DataExchange::connectToHost()
     {
       QAbstractSocket::SocketError error = m_socket->error();
       qCritical() << "Can't connect to device by ip:" <<  m_ip << ":" << QString::number(m_port) << " Socket error is: " << QString::number(error);
-      QApplication::processEvents(QEventLoop::AllEvents, 100);
+      QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
       ++count;
       continue;
     }
@@ -229,7 +227,7 @@ void DataExchange::writeDataToSocket()
       emit dataFromEncoder(d);
     }
 EndWhile:
-    QApplication::processEvents(QEventLoop::AllEvents, 10);
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
     //((SleepThread*)thread())->msleep(1000);
   }
   qDebug() << "UNLock SOCKET mutex";
