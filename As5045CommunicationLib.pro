@@ -18,25 +18,18 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    DataExchange.cpp \
     Encoder.cpp \
-    EncoderMonitor.cpp \
+    EncoderTCPMonitor.cpp \
     MessageBus.cpp \
-    ProtocolUtil.cpp \
-    TcpUartModule.cpp \
-    as5045communicationlib.cpp
+    ProtocolUtil.cpp
 
 HEADERS += \
     As5045CommunicationLib_global.h \
     CommonConst.h \
-    DataExchange.h \
     Encoder.h \
-    EncoderMonitor.h \
-    IDataExchange.h \
+    EncoderTCPMonitor.h \
     MessageBus.h \
-    ProtocolUtil.h \
-    TcpUartModule.h \
-    as5045communicationlib.h
+    ProtocolUtil.h
 
 # Default rules for deployment.
 unix {

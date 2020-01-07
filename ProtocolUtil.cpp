@@ -2,7 +2,6 @@
 #include <QDebug>
 #include <iostream>
 #include "CommonConst.h"
-#include "Settings.h"
 #include "ProtocolUtil.h"
 
 
@@ -10,27 +9,25 @@ ProtocolUtil::ProtocolUtil()
 {
 
   //char art[6] = {0x96, 0xA0, 0x81, 0x02, 0xDC, 0xA9};
-  unsigned char c = createCrc(0x82, 0xA9, 0x09, 0x55, 0x0);
-  c = createCrc(0x81, 0xA0, 0x02,0x0,0x0);
-  c = createCrc(0x81, 0xA0, 0x0,0x0,0x0);
-  int d = getAngle(300, 30);
-  d = getAngle(100, 250);
-  d = getAngle(200, 190);
-  d = getAngle(300, 30);
-  d = getAngle(300, 30);
+//  unsigned char c = createCrc(0x82, 0xA9, 0x09, 0x55, 0x0);
+//  c = createCrc(0x81, 0xA0, 0x02,0x0,0x0);
+//  c = createCrc(0x81, 0xA0, 0x0,0x0,0x0);
+//  int d = getAngle(300, 30);
+//  d = getAngle(100, 250);
+//  d = getAngle(200, 190);
+//  d = getAngle(300, 30);
+//  d = getAngle(300, 30);
 
 }
 
-EncoderData ProtocolUtil::getEncoderData(const QByteArray &data)
+bool ProtocolUtil::getEncoderData(EncoderData& encoderData, const QByteArray &data)
 {
-
   if(data.isNull() || data.isNull() || data.length() != 8)
   {
-    return EncoderData();
+    return false;
   }
   unsigned int address = data.at(1);
-
-  int angleShift = Settings::getInstance()->getAngleShiftForEncoder(address);
+  encoderData.address = address;
 
   unsigned int val_16;
   unsigned char b1, b2, b3;
@@ -80,19 +77,27 @@ EncoderData ProtocolUtil::getEncoderData(const QByteArray &data)
     tmp &=0x01;
     if((tmp == 1) && ((b3 & 0x40) == 0x40))
     {
-      // проверка на четность пройдена, данные верные
-      return EncoderData(getAngle(val_16*0.087890625, angleShift), true, true);
+      encoderData.deg = val_16*0.087890625;
+      encoderData.magnetIsOk = true;
+      encoderData.dataIsValid = true;
+      return true;
     }
     if((tmp == 0) && ((b3 & 0x40) == 0))
     {
-      // проверка на четность пройдена, данные верные
-      return EncoderData(getAngle(val_16*0.087890625, angleShift), true, true);
+      encoderData.deg = val_16*0.087890625;
+      encoderData.magnetIsOk = true;
+      encoderData.dataIsValid = true;
+      return true;
     }
   }
   else
   {  //магнит установлен не правильно, данным верить нельзя
-    return EncoderData(getAngle(val_16*0.087890625, angleShift), false, false);
+    encoderData.deg = val_16*0.087890625;
+    encoderData.magnetIsOk = false;
+    encoderData.dataIsValid = false;
+    return true;
   }
+  return false;
 }
 
 unsigned char ProtocolUtil::createCrc( const unsigned char datalen, const unsigned char address, const unsigned char data1, const unsigned char data2, const unsigned char data3)
@@ -120,16 +125,4 @@ unsigned char ProtocolUtil::createCrc( const unsigned char datalen, const unsign
 
     crc_send++;
   return crc_send;
-}
-
-int ProtocolUtil::getAngle(int currentAngle, int angleShift)
-{
-  if (angleShift == 0)
-    return currentAngle;
-  int deg = currentAngle + angleShift;
-  if(deg >= 360)
-  {
-    deg = deg - 360;
-  }
-  return deg;
 }
